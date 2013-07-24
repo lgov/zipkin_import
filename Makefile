@@ -10,7 +10,7 @@ BOOST_DIR=/opt/local/include
 OBJDIR=bin
 
 INC= -I$(THRIFT_DIR) -I$(BOOST_DIR)
-LIBS=-lthrift
+LIBS=-lthrift -lboost_program_options-mt
 
 SOURCES    := ${wildcard src/*.cpp src/thrift/*.cpp}
 CLIENT_OBJS    := ${SOURCES:.cpp=.o}
