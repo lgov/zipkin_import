@@ -13,3 +13,21 @@
  * limitations under the License.
  */
 
+// #define BOOST_TEST_MAIN
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE csv_import_tests
+#include <boost/test/unit_test.hpp>
+using namespace boost::unit_test;
+
+#include "zipkin_import.h"
+
+BOOST_AUTO_TEST_SUITE(csv_import_suite)
+
+BOOST_AUTO_TEST_CASE(basic_import_csv_test)
+{
+    CSVImporter csv_importer("test/endpoints.csv");
+
+    csv_importer.process_new();
+}
+
+BOOST_AUTO_TEST_SUITE_END()

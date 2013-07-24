@@ -1,0 +1,3 @@
+#endpoint;<endpoint_name>;<service_name>;<host_name|host_ip>;<host port>
+endpoint;client;http;lgo-macpbp2;50000
+endpoint;server;http;lgo-ubuntu1;80

@@ -25,37 +25,58 @@
 #include "thrift/zipkinCore_types.h"
 #include "thrift/zipkinCore_constants.h"
 
+#include <fstream>
+
 using namespace apache::thrift;
 using apache::thrift::protocol::TProtocol;
 using apache::thrift::transport::TTransport;
 using apache::thrift::transport::TSocket;
 using apache::thrift::transport::TMemoryBuffer;
 
+using std::ifstream;
+using std::vector;
+using std::string;
+using boost::shared_ptr;
+
 class SendToThriftServer {
 public:
-    SendToThriftServer() {
-    }
     virtual ~SendToThriftServer() throw() {}
 
-    virtual void init(std::string host, int port);
+    virtual void init(string host, int port);
     virtual void send_span(Span span) = 0;
 
 
 protected:
-    std::string host;
-    boost::shared_ptr<TSocket> socket;
-    boost::shared_ptr<TTransport> transport;
-    boost::shared_ptr<TProtocol> protocol;
-    boost::shared_ptr<TMemoryBuffer> buffer;
-    boost::shared_ptr<TProtocol> buf_protocol;
+    string host;
+    shared_ptr<TSocket> socket;
+    shared_ptr<TTransport> transport;
+    shared_ptr<TProtocol> protocol;
+    shared_ptr<TMemoryBuffer> buffer;
+    shared_ptr<TProtocol> buf_protocol;
 };
 
 class SendToScribeServer : public SendToThriftServer {
 public:
-    SendToScribeServer() {
-    }
-    void init(std::string host);
+    void init(string host);
     void send_span(Span span);
 
     virtual ~SendToScribeServer() throw() {}
+};
+
+class Importer {
+public:
+    virtual ~Importer() throw() {}
+};
+
+class CSVImporter : public Importer {
+public:
+    CSVImporter(string csv_path) : csv_path(csv_path),
+    csv_stream() {}
+    virtual ~CSVImporter() throw() {}
+
+    void process_new();
+
+protected:
+    string csv_path;
+    std::ifstream csv_stream;
 };

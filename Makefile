@@ -4,26 +4,29 @@
 CXX=clang++
 CFLAGS=-g
 LIB_PATHS=-L/opt/local/lib -L/usr/local/lib
-INC_PATHS=-I/opt/local/include/apr-1 -I/opt/local/include
-THRIFT_DIR=/opt/local/include/thrift
-BOOST_DIR=/opt/local/include
+INC_PATHS=-I./src -I/opt/local/include
 OBJDIR=bin
 
-INC= -I$(THRIFT_DIR) -I$(BOOST_DIR)
 LIBS=-lthrift -lboost_program_options-mt
 
-SOURCES    := ${wildcard src/*.cpp src/thrift/*.cpp}
-CLIENT_OBJS    := ${SOURCES:.cpp=.o}
-
-$(info $(SOURCES))
-$(info $(CLIENT_OBJS))
+SOURCES = ${wildcard src/*.cpp src/thrift/*.cpp}
+CLIENT_OBJS = ${SOURCES:.cpp=.o}
 
 zipkin_import: $(CLIENT_OBJS)
 		$(CXX) -o zipkin_import -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H\
-                                $(INC) $(LIB_PATHS) $(LIBS) $(CLIENT_OBJS)
+                                $(INC_PATHS) $(LIB_PATHS) $(LIBS) $(CLIENT_OBJS)
+
+TEST_SOURCES = ${filter-out src/zipkin_import.cpp, ${wildcard test/*.cpp} \
+		$(SOURCES) }
+TEST_OBJS = ${TEST_SOURCES:.cpp=.o}
+
+test: ${TEST_OBJS}
+		$(CXX) -o zipkin_import_tests -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H\
+				$(INC_PATHS) $(LIB_PATHS) $(LIBS) -lboost_unit_test_framework-mt\
+                $(TEST_OBJS)
 
 %.o : %.cpp
 		$(CXX) $(CFLAGS) $(INC_PATHS) -o $*.o -c $<
 
 clean:
-		rm -f zipkin_import $(CLIENT_OBJS)
+		rm -f zipkin_import zipkin_import_tests $(CLIENT_OBJS)

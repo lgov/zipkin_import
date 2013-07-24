@@ -15,11 +15,11 @@
 
 #include <memory>
 #include <string>
+#include <sstream>
 
 #include <boost/make_shared.hpp>
 #include <boost/archive/iterators/base64_from_binary.hpp>
 #include <boost/archive/iterators/transform_width.hpp>
-#include <sstream>
 
 #include "zipkin_import.h"
 
