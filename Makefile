@@ -12,6 +12,8 @@ LIBS=-lthrift -lboost_program_options-mt
 SOURCES = ${wildcard src/*.cpp src/thrift/*.cpp}
 CLIENT_OBJS = ${SOURCES:.cpp=.o}
 
+all:    zipkin_import   test
+
 zipkin_import: $(CLIENT_OBJS)
 		$(CXX) -o zipkin_import -DHAVE_INTTYPES_H -DHAVE_NETINET_IN_H\
                                 $(INC_PATHS) $(LIB_PATHS) $(LIBS) $(CLIENT_OBJS)
@@ -28,5 +30,7 @@ test: ${TEST_OBJS}
 %.o : %.cpp
 		$(CXX) $(CFLAGS) $(INC_PATHS) -o $*.o -c $<
 
+$(TEST_OBJS) : src/zipkin_import.h 
+
 clean:
-		rm -f zipkin_import zipkin_import_tests $(CLIENT_OBJS)
+		rm -f zipkin_import zipkin_import_tests $(CLIENT_OBJS) $(TEST_OBJS)
