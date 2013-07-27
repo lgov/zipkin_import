@@ -1,0 +1,7 @@
+#endpoint;<endpoint_name>;<service_name>;<host_name|host_ip>;<host port>
+endpoint;client;http;lgo-macpbp2;50000
+endpoint;server;http;lgo-ubuntu1;80
+
+#span;<trace_id>;<parent_id>;<span_id>;<span_name>
+span;1;0;1;client
+span;1;1;2;server

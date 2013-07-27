@@ -17,8 +17,9 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE csv_import_tests
 #include <boost/test/unit_test.hpp>
+#include <boost/foreach.hpp>
 using namespace boost::unit_test;
-
+using std::cout;
 #include "zipkin_import.h"
 
 BOOST_AUTO_TEST_SUITE(csv_import_suite)
@@ -26,6 +27,26 @@ BOOST_AUTO_TEST_SUITE(csv_import_suite)
 BOOST_AUTO_TEST_CASE(basic_import_csv_test)
 {
     CSVImporter csv_importer("test/endpoints.csv");
+
+    csv_importer.process_new();
+}
+
+BOOST_AUTO_TEST_CASE(import_csv_spans_test)
+{
+    CSVImporter csv_importer("test/spans.csv");
+
+    Importer::span_range_t spans = csv_importer.process_new();
+
+    shared_ptr<Span> s;
+    BOOST_FOREACH(s, spans) {
+        cout << "boost span name: " << s->name << "\n";
+    }
+
+}
+
+BOOST_AUTO_TEST_CASE(import_csv_annotations_test)
+{
+    CSVImporter csv_importer("test/annotations.csv");
 
     csv_importer.process_new();
 }

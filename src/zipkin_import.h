@@ -14,6 +14,9 @@
  */
 
 
+#ifndef ZIPKIN_IMPORT_H
+#define ZIPKIN_IMPORT_H
+
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
@@ -25,7 +28,14 @@
 #include "thrift/zipkinCore_types.h"
 #include "thrift/zipkinCore_constants.h"
 
+#include <boost/tokenizer.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <boost/range/adaptor/map.hpp>
+
 #include <fstream>
+#include <exception>
 
 using namespace apache::thrift;
 using apache::thrift::protocol::TProtocol;
@@ -37,6 +47,9 @@ using std::ifstream;
 using std::vector;
 using std::string;
 using boost::shared_ptr;
+using boost::tokenizer;
+using boost::escaped_list_separator;
+using boost::make_shared;
 
 class SendToThriftServer {
 public:
@@ -65,18 +78,43 @@ public:
 
 class Importer {
 public:
+    Importer() : endpoints(), spans() {}
     virtual ~Importer() throw() {}
+
+    typedef boost::unordered_map<int64_t, shared_ptr<Span> > span_map_t;
+    typedef boost::range_detail::select_second_mutable_range<span_map_t> span_range_t;
+
+protected:
+    typedef boost::unordered_map<string, shared_ptr<Endpoint> > ep_map_t;
+    ep_map_t endpoints;
+
+    typedef boost::iterator_range<span_map_t::const_iterator> span_map_range_t;
+    span_map_t spans;
+
+    vector<Annotation> annotations;
 };
 
 class CSVImporter : public Importer {
 public:
-    CSVImporter(string csv_path) : csv_path(csv_path),
-    csv_stream() {}
+    CSVImporter(string csv_path) : Importer(), csv_path(csv_path),
+                                   csv_stream() { }
+
     virtual ~CSVImporter() throw() {}
 
-    void process_new();
+    span_range_t process_new();
+
 
 protected:
     string csv_path;
     std::ifstream csv_stream;
+
+    typedef tokenizer<escaped_list_separator<char> > Tokenizer;
+    shared_ptr<Endpoint> read_endpoint(string& ep_name, vector<string> vec);
+    shared_ptr<Span> read_span(vector<string> vec);
+    void read_annotation(vector<string> vec);
+
+private:
+    class InvalidLineException : public std::exception { };
 };
+
+#endif /* #ifndef ZIPKIN_IMPORT_H */
